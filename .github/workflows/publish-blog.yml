@@ -1,4 +1,4 @@
-name: Publish Blog
+name: Publish Blog1
 
 on:
   pull_request:
