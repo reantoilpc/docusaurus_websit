@@ -2,9 +2,9 @@ name: Publish Blog1
 
 on:
   pull_request:
-    branches: [main]
+    branches: main
   push:
-    branches: [main]
+    branches: main
 
 jobs:
   gh-release:
@@ -21,6 +21,7 @@ jobs:
       - name: Release to GitHub Pages
         env:
           USE_SSH: true
+          DEPLOYMENT_BRANCH: main
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
