@@ -13,7 +13,7 @@ const config = {
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  organizationName: 'Ray Hsu', // Usually your GitHub org/user name.
+  organizationName: 'reantoilpc', // Usually your GitHub org/user name.
   projectName: 'reantoilpc.github.io', // Usually your repo name.
 
   presets: [
