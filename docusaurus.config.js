@@ -56,10 +56,10 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: 'My Site',
+        title: 'RH工作筆記',
         logo: {
-          alt: 'My Site Logo',
-          src: 'img/logo.svg',
+          alt: 'Ray Hsu',
+          src: 'img/profile.jpg',
         },
         items: [
           {
