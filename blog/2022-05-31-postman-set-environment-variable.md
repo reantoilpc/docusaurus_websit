@@ -5,6 +5,7 @@ authors:
   name: Ray Hsu
   title: C# 後端工程師
   url: https://github.com/reantoilpc
+  image_url: https://github.com/reantoilpc.png
 tags: [Postman]
 ---
 

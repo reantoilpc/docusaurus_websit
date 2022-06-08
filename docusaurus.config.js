@@ -59,7 +59,7 @@ const config = {
         title: 'RH工作筆記',
         logo: {
           alt: 'Ray Hsu',
-          src: 'img/rh.png',
+          src: 'img/logo.svg',
         },
         items: [
           {
