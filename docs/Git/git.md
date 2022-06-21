@@ -1,4 +1,4 @@
-# git 疑難雜症
+# 操作 Git 遇到疑難雜症
 
 ## 在 hard 模式 Reset 了某個 Commit，如何救回來?
 
