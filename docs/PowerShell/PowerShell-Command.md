@@ -10,8 +10,8 @@ Get-WmiObject -Class Win32_Product | where vendor -eq CodeTwo | select Name, Ver
 
 - 比較推薦掃過 registry 己安裝清單會比較快速
 
-HKLM :  LM – 本地機器上的軟件
-HKCU :  CU - 代表當前用戶
+> HKLM :  LM – 本地機器上的軟件
+> HKCU :  CU - 代表當前用戶
 
 ```shell
 $INSTALLED = Get-ItemProperty HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\* |  Select-Object DisplayName, DisplayVersion, Publisher, InstallDate
