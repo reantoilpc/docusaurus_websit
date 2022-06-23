@@ -1,4 +1,6 @@
-# 在 hard 模式 Reset 了某個 Commit，如何救回來?
+# Git Command
+
+## 在 hard 模式 Reset 了某個 Commit，如何救回來?
 
 > 首先要先建立一個觀念，不管是用什麼模式進行 Reset，Commit 就是 Commit，並不會因為你 Reset 它然後就消失
 
