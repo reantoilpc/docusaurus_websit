@@ -1,6 +1,4 @@
-# Give Up Reset Commit
-
-## 在 hard 模式 Reset 了某個 Commit，如何救回來?
+# 在 hard 模式 Reset 了某個 Commit，如何救回來?
 
 > 先有一個觀念，無論什麼模式進行 Reset，Commit 並不會因為 Reset 就消失
 
