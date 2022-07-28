@@ -1,4 +1,4 @@
-# PowerShell Command
+# Show List Installed Software
 
 ## 列出電腦已安裝的軟體，匯出檔案
 
