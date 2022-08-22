@@ -83,7 +83,7 @@ Repository 設計概念，希望透過傳入條件值篩選資料出來。如果
     FROM [EPK_ACC_TRA_TX] AS [traTx]
     WHERE LEFT([traTx].[CHANNEL_CODE], LEN('P96')) = 'P96' OR 'P96' = N''
 
-    -- StartsWith
+    -- EndsWith
     SELECT [traTx].[TRA_TX_ID], [traTx].[CHANNEL_CODE], [traTx].[TRANSACTION_TIME]
     FROM [EPK_ACC_TRA_TX] AS [traTx]
     WHERE RIGHT([traTx].[CHANNEL_CODE], LEN('P96')) = 'P96' OR 'P96' = N''
