@@ -57,18 +57,6 @@ Repository 設計概念，希望透過傳入條件值篩選資料出來。如果
 
 在 EFCore Link 查詢，不建議使用 `StartsWith`, `EndsWith`, `Contains` 這幾個關鍵字查詢，EFCore 並不會轉換成 SQL Like，反而會轉換使用 SQL 函數查詢，雖然查詢結果一樣，但當資料量大時，查詢的效率就會變差。
 
-如果要 Like 查詢，請要改用 `EF.Functions` 來查詢。
-
-```C#
-    // Bad
-    var channelCode = "P96";
-    _context.EpkAccTraTx.Where(x => x.ChannelCode.StartsWith(channelCode));
-
-    // Good
-    var channelCode = "P96";
-    _context.EpkAccTraTx.Where(x => EF.Functions.Like(x.ChannelCode, $"{channelCode}%"));   
-```
-
 在 EFCore 使用 `StartsWith`, `EndsWith`, `Contains` 關鍵字查詢，對應產生 SQL 語法
 
 ```SQL
@@ -88,6 +76,18 @@ Repository 設計概念，希望透過傳入條件值篩選資料出來。如果
     FROM [EPK_ACC_TRA_TX] AS [traTx]
     WHERE RIGHT([traTx].[CHANNEL_CODE], LEN('P96')) = 'P96' OR 'P96' = N''
 
+```
+
+如果要 Like 查詢，請要改用 `EF.Functions` 來查詢。
+
+```C#
+    // Bad
+    var channelCode = "P96";
+    _context.EpkAccTraTx.Where(x => x.ChannelCode.StartsWith(channelCode));
+
+    // Good
+    var channelCode = "P96";
+    _context.EpkAccTraTx.Where(x => EF.Functions.Like(x.ChannelCode, $"{channelCode}%"));   
 ```
 
 ### Inner Join
