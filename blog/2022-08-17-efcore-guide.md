@@ -163,3 +163,36 @@ Repository 設計概念，希望透過傳入條件值篩選資料出來。如果
     });
                              
 ```
+
+### EFCore WithNoLock
+
+在 MS SQL 下 Select 語法，通常會建議加上`WithNoLock`，避免 Select 資料表，同時間該資料正在異動中，暫時性的 Lock 等待作業完成期間，造成使用者連線 Timeout 的問題。
+
+雖然 EFCore 不支援自動補上 WithNoLock 的語法，但可以透過`IsolationLevel`（交易隔離等級）達到同樣的效果。
+
+隔離等級有分這幾種，各個差異如下（預設為ReadCommitted）：
+| 隔離等級 | 說明 |
+| -- | -- |
+| Chaos | 無法覆寫來自隔離程度更深之交易的暫止變更 |
+| ReadCommitted | 在交易期間無法讀取 Volatile 資料，但可以修改該資料 |
+| ReadUncommitted | 在交易期間可以讀取和修改 Volatile 資料。 |
+| RepeatableRead | 在交易期間可以讀取 Volatile 資料，但無法修改該資料。 在交易期間可以加入新資料。 |
+| Serializable | 在交易期間可以讀取 Volatile 資料，但無法修改該資料，且不能加入新資料。 |
+| Snapshot | 可以讀取 Volatile 資料。 交易會在修改資料之前，先驗證在最初讀取資料後是否有另一個交易已變更該資料。 如果資料已更新，則會引發錯誤， 如此可允許交易回到先前所認可的資料值。當您升級使用 Snapshot 隔離層級建立的交易時，會擲回具有錯誤訊息「無法升級 IsolationLevel 為快照的交易」的 InvalidOperationException。 |
+| Unspecified | 使用與指定不同的隔離等級，但無法判斷該等級。 如果設定這個值，會擲回例外狀況。 |
+
+要避免上述該問題，一般指定隔離等級為 ReadUncommitted。
+
+在程式裡要使用`WithNoLock`功能，要先從下載`Fetc.Core.EntityFramewrokCore`套件，只要回傳資料類型是`IQueryable`就可以使用，使用範例如下。
+
+```C#
+
+    var repository = _epkUnitOfWork.GetRepository<EpkExcWhitelist>();
+    var epkWhitelistDtos = repository.GetAll(x => x.UploadDate > startDate && x.UploadDate <= endDate)
+                                     .ToListWithNoLock();
+
+```
+
+## SaveChanges
+
+EFCore 是透過`DbContext.DbSet<T>`對資料進行Add、Update、Remov，當下還不會寫入資料庫，而是延遲到`SaveChanges`後才會真正寫入資料庫，而每次呼叫`SaveChanges`時，多筆資料異動指令會自動包成一個 Transaction，任一個動作失敗均會觸發 Rollback。
