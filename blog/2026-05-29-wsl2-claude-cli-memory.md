@@ -416,4 +416,82 @@ wsl --list --running
 
 ---
 
+## 附錄：本部落格發文流程備忘（給未來的我）
+
+這個 blog 是 Docusaurus 2.0.0-beta.14（2021 年）+ GitHub Pages，source repo 跟 deploy repo 分開：
+
+- **Source**：[`reantoilpc/docusaurus_websit`](https://github.com/reantoilpc/docusaurus_websit) — 寫 markdown 的地方
+- **Deploy 產出**：[`reantoilpc/reantoilpc.github.io`](https://github.com/reantoilpc/reantoilpc.github.io) — 編譯後靜態檔案
+
+原本 CI（`.github/workflows/publish-blog.yml`）會在 push 到 main 後自動 build + deploy，但 **CI 目前壞掉**（後面會解釋），所以暫時用「本機 build + deploy」繞過。
+
+### 標準發文流程（CI 壞掉期間）
+
+```bash
+cd ~/projects/Github/docusaurus_websit
+
+# 1. 寫新文章
+# 檔名格式：blog/YYYY-MM-DD-slug.md
+# frontmatter 範本：
+# ---
+# slug: YYYY-MM-DD-slug
+# title: 文章標題
+# authors: rayhsu
+# tags: [tag1, tag2]
+# ---
+
+# 2. commit source
+git add blog/<新檔>.md
+git commit -m "<簡短中文敘述>"
+git push origin main
+
+# 3. 本機 build & deploy（繞 CI）
+GIT_USER=reantoilpc DEPLOYMENT_BRANCH=main USE_SSH=false npx docusaurus deploy
+
+# 4. 等 GitHub Pages CDN propagate（30~60 秒）
+curl -sI https://reantoilpc.github.io/blog/YYYY-MM-DD-slug/ | head -1
+# 預期：HTTP/2 200
+```
+
+### CI 為什麼壞掉
+
+問題在 `package.json` 用 caret ranges（`^2.0.0-beta.14`）+ **repo 沒 yarn.lock**：
+
+1. CI 跑 `yarn install` 每次都抓最新 transitive deps
+2. 套件升版後跟 Docusaurus 2021 年的版本飄走，build 工具鏈（webpack ProgressPlugin、node-releases…）API mismatch
+3. 連續兩次 fail：
+   - 第一次：`node-releases@2.0.46` 要求 Node ≥18，CI 跑 Node 14 → 已修（bump 到 Node 18）
+   - 第二次：webpack ProgressPlugin schema 不認得 `name` / `color` / `reporters` 屬性 → 沒修
+
+本機之所以能 build，是因為 `node_modules/` 被 commit 在 repo 裡（290 MB），webpack 鎖在相容的 5.67.0。
+
+### 之後想根治 CI 的三條路
+
+| 路線 | 動作 | 風險 |
+|---|---|---|
+| (a) 用既有 node_modules 生 yarn.lock | `yarn import` 從 `package-lock.json` 轉、或 `synp` 工具 | 中（要驗轉換正確性） |
+| (b) workflow 改用 `npm ci` + 既有 `package-lock.json` | 改一行 + lockfile 也老，可能還要鎖 webpack `resolutions` | 中（package-lock.json 也是 4 年前） |
+| (c) 升級到 Docusaurus 3 | 大改，可能撞 mdx 語法、theme override、React 17→18 等 | 高 |
+
+目前 trade-off：每篇文章手動跑一次 `npx docusaurus deploy` 不算慢（本機既有 node_modules，build 約 20 秒），治本工程量大，等下次想動再說。
+
+### 環境檢查清單
+
+換新電腦 / 重 clone 後要先確認本機能 build：
+
+```bash
+cd ~/projects/Github/docusaurus_websit
+# node_modules 應該已經 commit 進 repo（290 MB）
+ls node_modules/webpack/package.json && cat node_modules/webpack/package.json | grep version
+# 預期 "version": "5.67.0"
+
+# 試一次 build 不 deploy
+npx docusaurus build
+# 預期：Generated static files in build. (+ build/en/)
+```
+
+如果 build 過了就放心。Deploy 走 `USE_SSH=false` 用 HTTPS + `gh auth` 既有憑證，不需要額外 SSH key。
+
+---
+
 *記錄日期：2026-05-29 / 環境：Windows 11 build 26200, WSL 2.6.3.0, Ubuntu 24.04*
